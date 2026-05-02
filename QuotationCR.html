@@ -482,24 +482,24 @@
 
   /* ===== A4 PAGE ===== */
   .cr-page{
-    width:210mm; min-height:297mm; padding:10mm 8mm;
+    width:210mm; min-height:297mm; padding:8mm 7mm;
     margin:1.5rem auto; background:#fff;
     box-shadow:var(--shadow-lg);
     border-radius:6px;
     font-family:'Poppins',sans-serif;
-    font-size:8.5pt; line-height:1.25;
+    font-size:8pt; line-height:1.2;
     color:var(--ink);
   }
   .cr-title-bar{
-    border:1.5px solid var(--border);
-    text-align:center;padding:6px 4px;
-    font-weight:700;font-size:11pt;color:#2563eb;
+    border:1px solid var(--border);
+    text-align:center;padding:5px 4px;
+    font-weight:700;font-size:10.5pt;color:#2563eb;
     letter-spacing:.02em;
   }
   .cr-subtitle{
-    border:1.5px solid var(--border);border-top:none;
-    text-align:center;padding:5px 4px;
-    font-weight:700;font-size:10pt;letter-spacing:.4em;
+    border:1px solid var(--border);border-top:none;
+    text-align:center;padding:4px 4px;
+    font-weight:700;font-size:9.5pt;letter-spacing:.4em;
   }
   table.cr{
     width:100%;border-collapse:collapse;margin-top:0;
@@ -507,8 +507,8 @@
   }
   table.cr td{
     border:1px solid var(--border);
-    padding:3px 5px;vertical-align:top;
-    font-size:8.5pt;
+    padding:2.5px 5px;vertical-align:top;
+    font-size:8pt;line-height:1.2;
     word-wrap:break-word;
   }
   table.cr td.idx{width:24px;text-align:center;font-weight:500;}
@@ -518,10 +518,10 @@
 
   /* Compact: shrink font when cell holds long text */
   table.cr td.compact, table.cr td.compact .cr-edit{
-    font-size:7.5pt;line-height:1.18;
+    font-size:7.2pt;line-height:1.15;
   }
   table.cr td.compact-xs, table.cr td.compact-xs .cr-edit{
-    font-size:7pt;line-height:1.15;
+    font-size:6.8pt;line-height:1.1;
   }
 
   /* Editable fields */
@@ -544,12 +544,12 @@
   .xw-toggle:hover .xw-off{color:#64748b;}
 
   .sig-cell{
-    height:18mm;position:relative;text-align:center;padding:2px;
+    height:15mm;position:relative;text-align:center;padding:2px;
     overflow:hidden;
   }
   .sig-cell img{
-    max-height:16mm;max-width:85%;object-fit:contain;
-    display:block;margin:1.5mm auto 0;
+    max-height:13mm;max-width:85%;object-fit:contain;
+    display:block;margin:1mm auto 0;
   }
   .sig-cell .sig-label{position:absolute;left:4px;top:2px;font-weight:600;font-size:7.5pt;}
   .sig-cell .sig-name{position:absolute;left:0;right:0;bottom:1px;font-size:7pt;color:var(--muted);}
@@ -568,7 +568,7 @@
 
   /* PRINT */
   @media print{
-    @page { size: A4; margin: 7mm; }
+    @page { size: A4; margin: 6mm; }
     html,body{background:#fff;}
     .app-topbar,.app-header,.app-tabs,.app-grid > .sidebar,.picker,.print-hide{display:none !important;}
     .app-grid{display:block;padding:0;}
@@ -576,13 +576,15 @@
       box-shadow:none;margin:0;padding:0;border-radius:0;
       width:auto;min-height:auto;
       page-break-inside:avoid;break-inside:avoid;
-      font-size:8pt;line-height:1.22;
+      font-size:7.5pt;line-height:1.18;
     }
-    .cr-page table.cr td{padding:2.5px 5px;font-size:8pt;}
-    .cr-page .cr-title-bar{font-size:10.5pt;padding:5px 4px;}
-    .cr-page .cr-subtitle{font-size:9.5pt;padding:4px 4px;}
-    .cr-page .sig-cell{height:16mm;}
-    .cr-page .sig-cell img{max-height:14mm;margin-top:1mm;}
+    .cr-page table.cr td{padding:2px 5px;font-size:7.5pt;line-height:1.18;}
+    .cr-page table.cr td.compact, .cr-page table.cr td.compact .cr-edit{font-size:6.8pt;line-height:1.12;}
+    .cr-page table.cr td.compact-xs, .cr-page table.cr td.compact-xs .cr-edit{font-size:6.3pt;line-height:1.1;}
+    .cr-page .cr-title-bar{font-size:10pt;padding:4px 4px;}
+    .cr-page .cr-subtitle{font-size:9pt;padding:3px 4px;}
+    .cr-page .sig-cell{height:14mm;}
+    .cr-page .sig-cell img{max-height:12mm;margin-top:0.8mm;}
     table.cr,table.cr tbody,table.cr tr,table.cr td{
       page-break-inside:avoid !important;break-inside:avoid !important;
     }
@@ -1190,8 +1192,8 @@ function renderCR(data){
         <td class="val-hi ${shrinkCls(cr.custName)}" colspan="4">${ed(cr.custName)}</td>
       </tr>
       <tr>
-        <td class="idx">1.0</td><td class="lbl">Specification.</td><td class="val">${ed('')}</td>
-        <td class="idx">6.0</td><td class="lbl">Quantity:</td><td class="val">${ed(cr.quantity)}</td>
+        <td class="idx">1</td><td class="lbl">Specification.</td><td class="val">${ed('')}</td>
+        <td class="idx">6</td><td class="lbl">Quantity:</td><td class="val">${ed(cr.quantity)}</td>
       </tr>
       <tr>
         <td class="idx">1.1</td><td class="lbl">Shell: -</td><td>${ed('')}</td>
@@ -1199,11 +1201,11 @@ function renderCR(data){
       </tr>
       <tr>
         <td class="idx">1.2</td><td class="lbl">Trims: -</td><td>${ed('')}</td>
-        <td class="idx">7.0</td><td class="lbl">Discount:</td><td class="val">${ed('N.A')}</td>
+        <td class="idx">7</td><td class="lbl">Discount:</td><td class="val">${ed('N.A')}</td>
       </tr>
       <tr>
         <td class="idx">1.3</td><td class="lbl">Fastners: -</td><td>${ed('')}</td>
-        <td class="idx">8.0</td><td class="lbl">Third Party Inspections:</td><td class="val">${ed('N.A')}</td>
+        <td class="idx">8</td><td class="lbl">Third Party Inspections:</td><td class="val">${ed('N.A')}</td>
       </tr>
       <tr>
         <td class="idx">1.4</td><td class="lbl">Gaskets: -</td><td>${ed('')}</td>
@@ -1211,144 +1213,152 @@ function renderCR(data){
       </tr>
       <tr>
         <td class="idx">1.5</td><td class="lbl">Gland Packing: -</td><td>${ed('')}</td>
-        <td class="idx">9.0</td><td class="lbl">Inspection Venue :</td><td class="val">${ed('For')}</td>
+        <td class="idx">9</td><td class="lbl">Inspection Venue :</td><td class="val">${ed('For')}</td>
       </tr>
       <tr>
         <td class="idx">1.6</td><td class="lbl">Others:</td><td>${ed('')}</td>
-        <td class="idx">10.0</td><td class="lbl">Inspection Charges:</td><td class="val">${ed('Customers A/c')}</td>
+        <td class="idx">10</td><td class="lbl">Inspection Charges:</td><td class="val">${ed('Customers A/c')}</td>
       </tr>
       <tr>
         <td class="idx">1.7</td><td class="lbl">Others:</td><td>${ed('')}</td>
-        <td class="idx">11.0</td><td class="lbl">Spares Quoted/Not Quoted:</td><td class="val">${ed('N.A')}</td>
+        <td class="idx">11</td><td class="lbl">Spares Quoted/Not Quoted:</td><td class="val">${ed('N.A')}</td>
       </tr>
       <tr>
         <td class="idx">1.8</td><td class="lbl">Others:</td><td>${ed('')}</td>
-        <td class="idx">12.0</td><td class="lbl">Delivery /Zero Date:</td><td class="val">${ed('N.A')}</td>
+        <td class="idx">12</td><td class="lbl">Delivery /Zero Date:</td><td class="val">${ed('N.A')}</td>
       </tr>
       <tr>
-        <td class="idx">2.0</td><td class="lbl">DrawingNo.: -</td><td>${ed('')}</td>
-        <td class="idx">13.0</td><td class="lbl">Liquidated damage for delay:</td><td class="val">${ed('N.A')}</td>
+        <td class="idx">2</td><td class="lbl">DrawingNo.: -</td><td>${ed('')}</td>
+        <td class="idx">13</td><td class="lbl">Liquidated damage for delay:</td><td class="val">${ed('N.A')}</td>
       </tr>
       <tr>
-        <td class="idx">3.0</td><td class="lbl">Terms of Payments:</td><td class="val compact">${ed(cr.paymentTerms)}</td>
-        <td class="idx">14.0</td><td class="lbl">${cr.isSO ? 'Guarantee/Warranties:' : 'Warranty:'}</td><td class="val-hi compact">${ed(cr.warranty)}</td>
+        <td class="idx">3</td><td class="lbl">Terms of Payments:</td><td class="val compact">${ed(cr.paymentTerms)}</td>
+        <td class="idx">14</td><td class="lbl">${cr.isSO ? 'Guarantee/Warranties:' : 'Warranty:'}</td><td class="val-hi compact">${ed(cr.warranty)}</td>
       </tr>
       <tr>
         <td class="idx">3.1</td><td class="lbl">Banker's Name &amp; Address:</td><td class="val">${ed('N.A')}</td>
-        <td class="idx">15.0</td><td class="lbl">Validity:</td><td class="val">${ed(cr.validity)}</td>
+        <td class="idx">15</td><td class="lbl">Validity:</td><td class="val">${ed(cr.validity)}</td>
       </tr>
       <tr>
         <td class="idx">3.2</td><td class="lbl">Bank Charges &amp; Overdue Interest.</td><td class="val">${ed('N.A')}</td>
-        <td class="idx">16.0</td><td class="lbl">Any other Terms:</td><td class="val">${ed('N.A')}</td>
+        <td class="idx">16</td><td class="lbl">Any other Terms:</td><td class="val">${ed('N.A')}</td>
       </tr>
       <tr>
         <td class="idx">3.3</td><td class="lbl">Bid Security Furnished/Not Furnished.</td><td class="val">${ed('N.A')}</td>
-        <td colspan="3"></td>
+        <td class="idx">17</td><td class="lbl">PROVEN TRACK RECORD:</td><td class="val-hi">${ed('Satisfactory')}</td>
       </tr>
       <tr>
         <td class="idx">3.4</td><td class="lbl">Bank Guarantee for Advances/Materials.</td><td class="val">${ed('N.A')}</td>
-        <td colspan="3"></td>
+        <td class="idx">18</td><td class="lbl">Enquiry From:</td><td class="val">${ed(cr.enquiryFrom)}</td>
       </tr>
       ${cr.isSO ? `
       <tr>
-        <td class="idx">4.0</td><td class="lbl">Taxes. :</td><td class="val-hi">${ed(cr.taxes)}</td>
-        <td colspan="3"></td>
+        <td class="idx">4</td><td class="lbl">Taxes. :</td><td class="val-hi">${ed(cr.taxes)}</td>
+        <td class="idx">19</td><td class="lbl">Market Value:</td><td class="val">${ed('N.A')}</td>
       </tr>
       <tr>
         <td class="idx">4.1</td><td class="lbl">Gujarat Sales Tax No.:</td><td class="val">${ed('NA')}</td>
-        <td class="idx">17.0</td><td class="lbl">Market Value:</td><td class="val">${ed('N.A')}</td>
+        <td class="idx">20</td><td class="lbl">Competition:</td><td class="val">${ed('N.A')}</td>
       </tr>
       <tr>
         <td class="idx">4.2</td><td class="lbl">Central Sales Tax. No.:</td><td class="val">${ed('NA')}</td>
-        <td class="idx">18.0</td><td class="lbl">Competition:</td><td class="val">${ed('N.A')}</td>
+        <td class="idx">21</td><td class="lbl">Capacity Checked:</td><td class="val-hi">${ed('Checked O.K')}</td>
       </tr>
       <tr>
         <td class="idx">4.3</td><td class="lbl">Tax Exemption/s:</td><td class="val">${ed('N.A')}</td>
-        <td class="idx">19.0</td><td class="lbl">Capacity Checked:</td><td class="val-hi">${ed('Checked O.K')}</td>
+        <td class="idx">22</td><td class="lbl">Capability Checked:</td><td class="val-hi">${ed('Checked O.K')}</td>
       </tr>
       <tr>
         <td class="idx">4.4</td><td class="lbl">Excise Duty.:</td><td class="val">${ed('N.A')}</td>
-        <td class="idx">20.0</td><td class="lbl">Capability Checked:</td><td class="val-hi">${ed('Checked O.K')}</td>
+        <td class="idx">23</td><td class="lbl">Service Back Up:</td><td class="val">${ed('N.A')}</td>
       </tr>
       <tr>
         <td class="idx">4.5</td><td class="lbl">Rate of Tax.:</td><td class="val">${ed('18%')}</td>
-        <td class="idx">21.0</td><td class="lbl">Service Back Up:</td><td class="val">${ed('N.A')}</td>
+        <td class="idx">24</td><td class="lbl">Up gradation:</td><td class="val">${ed('N.A')}</td>
       </tr>
       <tr>
         <td class="idx">4.6</td><td class="lbl">Surcharge on Tax.:</td><td class="val">${ed('N.A')}</td>
-        <td class="idx">22.0</td><td class="lbl">Up gradation:</td><td class="val">${ed('N.A')}</td>
+        <td colspan="3"></td>
       </tr>
       ` : `
       <tr>
-        <td class="idx">4.0</td><td class="lbl">Taxes. :</td><td class="val-hi">${ed(cr.taxes)}</td>
-        <td colspan="3"></td>
+        <td class="idx">4</td><td class="lbl">Taxes. :</td><td class="val-hi">${ed(cr.taxes)}</td>
+        <td class="idx">19</td><td class="lbl">Market Value:</td><td class="val">${ed('N.A')}</td>
       </tr>
       <tr>
         <td class="idx">4.1</td><td class="lbl">GST Reg.Number</td><td class="val-hi">${ed(cr.gstNo)}</td>
-        <td class="idx">17.0</td><td class="lbl">Market Value:</td><td class="val">${ed('N.A')}</td>
-      </tr>
-      <tr>
-        <td class="idx"></td><td></td><td></td>
-        <td class="idx">18.0</td><td class="lbl">Competition:</td><td class="val">${ed('N.A')}</td>
+        <td class="idx">20</td><td class="lbl">Competition:</td><td class="val">${ed('N.A')}</td>
       </tr>
       <tr>
         <td class="idx">4.2</td><td class="lbl">Tax Exemption/s:</td><td class="val">${ed('N.A')}</td>
-        <td class="idx">19.0</td><td class="lbl">Capacity Checked:</td><td class="val-hi">${ed('Checked O.K')}</td>
+        <td class="idx">21</td><td class="lbl">Capacity Checked:</td><td class="val-hi">${ed('Checked O.K')}</td>
       </tr>
       <tr>
         <td class="idx">4.3</td><td class="lbl">Excise Duty.:</td><td class="val">${ed('N.A')}</td>
-        <td class="idx">20.0</td><td class="lbl">Capability Checked:</td><td class="val-hi">${ed('Checked O.K')}</td>
+        <td class="idx">22</td><td class="lbl">Capability Checked:</td><td class="val-hi">${ed('Checked O.K')}</td>
       </tr>
       <tr>
         <td class="idx">4.4</td><td class="lbl">Rate of Tax.:</td><td class="val">${ed('-')}</td>
-        <td class="idx">21.0</td><td class="lbl">Service Back Up:</td><td class="val">${ed('N.A')}</td>
+        <td class="idx">23</td><td class="lbl">Service Back Up:</td><td class="val">${ed('N.A')}</td>
       </tr>
       <tr>
         <td class="idx">4.5</td><td class="lbl">Surcharge on Tax.:</td><td class="val">${ed('N.A')}</td>
-        <td class="idx">22.0</td><td class="lbl">Up gradation:</td><td class="val">${ed('N.A')}</td>
+        <td class="idx">24</td><td class="lbl">Up gradation:</td><td class="val">${ed('N.A')}</td>
       </tr>
       `}
       <tr>
-        <td class="idx">5.0</td><td class="lbl">Delivery:</td><td class="val-hi">${ed(cr.delivery)}</td>
-        <td class="idx">23.0</td><td class="lbl">Erection/Installation/Testing Till Handing Over:</td><td class="val">${ed('N.A')}</td>
+        <td class="idx">5</td><td class="lbl">Delivery:</td><td class="val-hi">${ed(cr.delivery)}</td>
+        <td class="idx">25</td><td class="lbl">Erection/Installation/Testing Till Handing Over:</td><td class="val">${ed('N.A')}</td>
       </tr>
       <tr>
         <td class="idx">5.1</td>
         <td class="lbl">${exworkLabel(cr.exwork)}</td>
         <td class="val-hi">${ed(cr.exwork === 'EXWORKS' ? 'Ex-Works' : 'FOR')}</td>
-        <td class="idx">24.0</td><td class="lbl">Testing Standard:</td><td class="val-hi">${ed('As Quoted.')}</td>
+        <td class="idx">26</td><td class="lbl">Testing Standard:</td><td class="val-hi">${ed('As Quoted.')}</td>
       </tr>
       <tr>
         <td class="idx">5.2</td><td class="lbl">Packing &amp; Handling charge.:</td><td class="val-hi">${ed(cr.packing)}</td>
-        <td class="idx">25.0</td><td class="lbl">Manufacturing Standard.:</td><td class="val-hi">${ed('As Quoted.')}</td>
+        <td class="idx">27</td><td class="lbl">Manufacturing Standard.:</td><td class="val-hi">${ed('As Quoted.')}</td>
       </tr>
       <tr>
         <td class="idx">5.3</td><td class="lbl">Mode of Dispatch:</td><td class="val-hi">${ed('By Road')}</td>
-        <td class="idx">26.0</td><td class="lbl">Specific Technical Requirements:</td><td class="val">${ed('N.A')}</td>
+        <td class="idx">28</td><td class="lbl">Specific Technical Requirements:</td><td class="val">${ed('N.A')}</td>
       </tr>
       <tr>
         <td class="idx">5.4</td><td class="lbl">Transit Charge:</td><td class="val-hi">${ed(cr.transitChg)}</td>
-        <td class="idx">27.0</td><td class="lbl">Deviation/s (if any):</td><td class="val">${ed('N.A')}</td>
+        <td class="idx">29</td><td class="lbl">Deviation/s (if any):</td><td class="val">${ed('N.A')}</td>
       </tr>
       <tr>
         <td class="idx">5.5</td><td class="lbl">Transit Insurance:</td><td class="val-hi">${ed('Our A/C')}</td>
-        <td class="idx">28.0</td><td class="lbl">Amendments Required:</td><td class="val">${ed('N.A')}</td>
+        <td class="idx">30</td><td class="lbl">Amendments Required:</td><td class="val">${ed('N.A')}</td>
       </tr>
       <tr>
         <td class="idx">5.6</td><td class="lbl">Transit Forms (If any):</td><td class="val-hi">${ed(cr.transitForms)}</td>
-        <td class="idx">29.0</td><td class="lbl">Order Conformation Letter</td><td class="val">${ed('')}</td>
+        <td class="idx">31</td><td class="lbl">Order Conformation Letter</td><td class="val">${ed('')}</td>
       </tr>
       <tr>
         <td class="idx">5.7</td><td class="lbl">Storage &amp; Demurrage Charge for delayed Inspection.:</td><td class="val">${ed('½% Per Week or Part thereof.')}</td>
-        <td class="idx">30.0</td><td class="lbl">Process Flow-Chart No.</td><td class="val-hi">${ed('VEW:ASM:PRO:CHT-03')}</td>
+        <td class="idx">32</td><td class="lbl">Process Flow-Chart No.</td><td class="val-hi">${ed('VEW:ASM:PRO:CHT-03')}</td>
       </tr>
       <tr>
         <td class="idx">5.8</td><td class="lbl">Part Deliveries.:</td><td class="val-hi">${ed('Applicable')}</td>
-        <td class="idx">31</td><td class="lbl">Total Amount:</td><td class="val-hi">${ed(cr.grandTotal != null ? '₹ ' + fmt.money(cr.grandTotal) : '')}</td>
+        <td class="idx">33</td><td class="lbl">Total Amount:</td><td class="val-hi">${ed(cr.grandTotal != null ? '₹ ' + fmt.money(cr.grandTotal) : '')}</td>
       </tr>
       <tr>
         <td class="idx">5.9</td><td class="lbl">Type of Packaging:</td><td class="val-hi">${ed('STANDARD PACKING')}</td>
-        <td class="idx">32</td><td class="lbl">Enquiry From:</td><td class="val">${ed(cr.enquiryFrom)}</td>
+        <td class="idx">34</td><td class="lbl">Assessment of Impact of Change:</td><td class="val">${ed('N.A.')}</td>
+      </tr>
+      <tr>
+        <td class="idx">5.10</td><td class="lbl">Risk Identification:</td><td class="val">${ed('N.A.')}</td>
+        <td class="idx">35</td><td class="lbl">Management of Change (MOC):</td><td class="val">${ed('N.A.')}</td>
+      </tr>
+      <tr>
+        <td class="idx">5.11</td><td class="lbl">Risk Assessment:</td><td class="val">${ed('N.A.')}</td>
+        <td class="idx">36</td><td class="lbl">Management for changes Impacting Product Quality:</td><td class="val">${ed('N.A.')}</td>
+      </tr>
+      <tr>
+        <td class="idx">5.12</td><td class="lbl">Contigency Planning:</td><td class="val">${ed('N.A.')}</td>
+        <td colspan="3"></td>
       </tr>
       ${cr.isSO ? `
       <tr>
