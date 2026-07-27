@@ -1502,6 +1502,8 @@ async function saveCR(){
     await db.collection('cr_saved').doc(docId).set(payload);
     _savedCache[docId] = payload;
     if (typeof renderList === 'function' && (_mode === 'qcr' || _mode === 'socr')) renderList();
+    // tell the embedding SALES SYSTEM modal to refresh its CR cache / row chips
+    try { if (window.parent !== window) window.parent.postMessage({ type:'cr-saved', docId }, '*'); } catch(e){}
     if (btn){ btn.querySelector('span:last-child').textContent = 'Saved ✓'; }
     setTimeout(() => {
       if (btn){ btn.disabled = false; btn.querySelector('span:last-child').textContent = 'Save CR'; }
@@ -1935,6 +1937,9 @@ window.addEventListener('message', (ev) => {
 // ============================================================
 // URL-PARAM AUTO-LOAD — used by SALES SYSTEM to embed a CR preview
 // Usage: QuotationCR.html?cr=qcr__QT2627043   or  ?cr=socr__SO2627044
+// New-CR authoring: QuotationCR.html?newFor=QT2627043&mode=qcr
+//   → renders a FRESH CR off the latest revision of that source doc,
+//     keeps the toolbar (Save CR / Print) visible even in embed mode.
 // Add &print=1 to auto-open the browser print dialog after render.
 // Add &embed=1 to hide picker/sidebar (modal/iframe-friendly view).
 // ============================================================
@@ -1942,16 +1947,22 @@ window.addEventListener('message', (ev) => {
   try {
     const params = new URLSearchParams(location.search);
     const crId   = params.get('cr');
-    if (!crId) return;
+    const newFor = params.get('newFor');   // source number (QT…/SO…) for a brand-new CR
+    if (!crId && !newFor) return;
     const wantPrint = params.get('print') === '1';
     const embed    = params.get('embed') === '1';
 
     if (embed){
-      // Hide chrome (header, tabs, sidebar, saved panel) — show only the CR render area
+      // Hide chrome — show only the CR render area.
+      // For newFor (authoring) keep the header toolbar so Save CR is reachable.
       const st = document.createElement('style');
       st.textContent = `
         html, body { background:#fff !important; }
-        .app-header, .app-tabs, .print-hide, .sidebar, #savedPanel { display:none !important; }
+        ${newFor ? '' : '.app-header,'} .app-tabs, .sidebar, #savedPanel { display:none !important; }
+        ${newFor ? `
+          .app-header { margin:.6rem auto .4rem !important; }
+          .app-header .app-brand { display:none !important; }
+        ` : '.print-hide { display:none !important; }'}
         .app-grid { display:block !important; grid-template-columns:none !important; padding:0 !important; max-width:100% !important; }
         .cr-col { width:100% !important; padding:0 !important; }
         .cr-page { box-shadow:none !important; margin:0 auto !important; }
@@ -1959,8 +1970,10 @@ window.addEventListener('message', (ev) => {
       document.head.appendChild(st);
     }
 
-    // Determine target mode from prefix
-    const mode = crId.startsWith('socr__') ? 'socr' : 'qcr';
+    // Determine target mode from prefix (preview) or ?mode= (new CR)
+    const mode = crId
+      ? (crId.startsWith('socr__') ? 'socr' : 'qcr')
+      : (params.get('mode') === 'socr' ? 'socr' : 'qcr');
 
     // Switch to target mode (triggers loadList for that collection)
     setMode(mode);
@@ -1970,6 +1983,24 @@ window.addEventListener('message', (ev) => {
       const check = () => Object.keys(_caches[mode] || {}).length ? r() : setTimeout(check, 150);
       check();
     });
+
+    // ── NEW CR path: resolve source number → latest revision doc key, render fresh
+    if (newFor){
+      const want = String(newFor).trim().toUpperCase();
+      const rows = buildList('');
+      const row  = rows.find(r => String(r.num).trim().toUpperCase() === want);
+      const key  = row ? row.key : (_caches[mode][newFor] ? newFor : null);
+      if (!key){
+        document.getElementById('crRoot').innerHTML =
+          `<div style="padding:2rem;text-align:center;color:#c0392b;font-size:.9rem;">
+             Source record <b>${fmt.esc(newFor)}</b> not found in <b>${fmt.esc(MODE_CFG[mode].coll)}</b>.
+           </div>`;
+        return;
+      }
+      selectRecord(key);
+      if (wantPrint) setTimeout(() => window.print(), 800);
+      return;
+    }
 
     // Load the saved CR cache
     await loadSavedRecords();
