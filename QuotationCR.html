@@ -2325,13 +2325,26 @@ window.saveCR = async function(){
 };
 
 // Boot
-pruneActivity();
-startActivityFeed();
-startGlobalPresence();
-setInterval(pruneActivity, 60*60*1000); // hourly prune
+// In embed mode (?embed=1) the picker/sidebar/activity UI is hidden, so the
+// activity feed, global presence listener, hourly prune and the initial
+// whole-collection loadList() are all dead weight competing for bandwidth
+// with the one CR we actually need. Skip them there.
+const _bootParams = new URLSearchParams(location.search);
+const _isEmbed    = _bootParams.get('embed') === '1';
+const _hasCrParam = !!_bootParams.get('cr');
+const _isWarm     = _bootParams.get('warm') === '1';
 
-// initial load
-loadList();
+if (!_isEmbed){
+  pruneActivity();
+  startActivityFeed();
+  startGlobalPresence();
+  setInterval(pruneActivity, 60*60*1000); // hourly prune
+}
+
+// initial load — skipped for ?cr= (fastOpenCR fetches just the docs it needs)
+// and for ?warm=1 (the parent pushes records over postMessage; the picker
+// list is hidden in embed mode, so downloading the collection is pure waste).
+if (!_hasCrParam && !_isWarm) loadList();
 
 // ============================================================
 // PRINT BRIDGE — parent (SALES SYSTEM iframe) can trigger print
@@ -2350,12 +2363,123 @@ window.addEventListener('message', (ev) => {
 // Add &print=1 to auto-open the browser print dialog after render.
 // Add &embed=1 to hide picker/sidebar (modal/iframe-friendly view).
 // ============================================================
+/* ============================================================
+   WARM-IFRAME BRIDGE (used by SALES SYSTEM's CR preview modal)
+   The parent preloads this page once with ?embed=1&warm=1, then for each
+   CR click posts {type:'cr-show', crId, rec, src} instead of reassigning
+   iframe.src. That skips a full page reload (502 KB parse + 2 Firebase
+   SDK fetches) on every open.
+
+   `rec` is the cr_saved doc the parent already has cached, and `src` is
+   the source quotation/SO doc when the parent has it — when both are
+   supplied we render with ZERO Firestore reads. Anything missing falls
+   back to fastOpenCR, which fetches only what it needs.
+============================================================ */
+function crShowFromParent(msg){
+  const crId = msg && msg.crId;
+  if (!crId) return;
+  const rec = msg.rec;
+  const src = msg.src;
+
+  // No cached record pushed → fetch by id (still only 1–2 doc reads).
+  if (!rec || !rec.sourceKey || !src){
+    fastOpenCR(crId, (rec && rec.mode) || (String(crId).startsWith('socr__') ? 'socr' : 'qcr'), false);
+    return;
+  }
+
+  const targetMode = rec.mode || (String(crId).startsWith('socr__') ? 'socr' : 'qcr');
+  _savedCache[crId] = rec;
+  _caches[targetMode][rec.sourceKey] = src;
+  _mode = targetMode;
+  document.body.classList.toggle('theme-so', targetMode === 'socr');
+  _selected[targetMode] = rec.sourceKey;
+  _pendingEdits = rec.edits || {};
+  renderCR(src);
+}
+
+window.addEventListener('message', (ev) => {
+  const d = ev.data;
+  if (!d) return;
+  if (d.type === 'cr-show') crShowFromParent(d);
+});
+
+// Tell the parent this page is booted and ready to accept 'cr-show'.
+// The parent queues any click that lands before this fires.
+try {
+  if (window.parent !== window &&
+      new URLSearchParams(location.search).get('embed') === '1'){
+    window.parent.postMessage({ type:'cr-ready' }, '*');
+  }
+} catch(e){}
+
+/** Fast single-record CR open for the ?cr=<docId> embed path.
+ *  Fetches only the CR doc + its source doc by id. Falls back to the
+ *  full-collection scan ONLY if the source key is missing (deleted /
+ *  revised away), which is the rare case.
+ *  Returns true on success. */
+async function fastOpenCR(crId, mode, wantPrint){
+  const root = document.getElementById('crRoot');
+  try {
+    // 1) The saved CR record — one doc read.
+    const crSnap = await db.collection('cr_saved').doc(crId).get();
+    if (!crSnap.exists){
+      // Definitive answer — the doc genuinely isn't there. Return true so the
+      // caller does NOT fall through and re-scan whole collections chasing it.
+      root.innerHTML = emptyState(ICON.alert, 'Contract Review not found',
+        'No saved CR with id ' + fmt.esc(crId) + '.');
+      return true;
+    }
+    const rec = crSnap.data();
+    _savedCache[crId] = rec;
+    const targetMode = rec.mode || mode;
+    const coll = MODE_CFG[targetMode].coll;
+
+    // 2) Its source quotation / SO — one doc read.
+    let effectiveKey = rec.sourceKey;
+    let raw = null;
+    if (effectiveKey){
+      const srcSnap = await db.collection(coll).doc(effectiveKey).get();
+      if (srcSnap.exists){
+        raw = srcSnap.data();
+        _caches[targetMode][effectiveKey] = raw;
+      }
+    }
+
+    // 3) Rare fallback: source key gone → need the collection to find the
+    //    latest surviving revision. Reuses loadFromSaved's proven logic.
+    if (!raw){
+      console.warn('[CR fast] source', effectiveKey, 'missing — falling back to collection scan');
+      const snap = await db.collection(coll).get();
+      _caches[targetMode] = {};
+      snap.forEach(d => { _caches[targetMode][d.id] = d.data(); });
+      await loadFromSaved(crId);
+      if (wantPrint) setTimeout(() => window.print(), 800);
+      return true;
+    }
+
+    // 4) Render directly — no setMode()/loadList() round trip.
+    _mode = targetMode;
+    document.body.classList.toggle('theme-so', targetMode === 'socr');
+    _selected[targetMode] = effectiveKey;
+    _pendingEdits = rec.edits || {};
+    renderCR(raw);
+
+    if (wantPrint) setTimeout(() => window.print(), 400);
+    return true;
+  } catch(e){
+    console.warn('[CR fast] failed, falling back to slow path', e);
+    return false;
+  }
+}
+
 (async function autoLoadFromURL(){
   try {
     const params = new URLSearchParams(location.search);
     const crId   = params.get('cr');
     const newFor = params.get('newFor');   // source number (QT…/SO…) for a brand-new CR
-    if (!crId && !newFor) return;
+    const warm   = params.get('warm') === '1';  // preloaded, waiting for 'cr-show'
+    // warm=1 has no cr/newFor yet — it still needs the embed chrome applied.
+    if (!crId && !newFor && !warm) return;
     const wantPrint = params.get('print') === '1';
     const embed    = params.get('embed') === '1';
 
@@ -2378,10 +2502,32 @@ window.addEventListener('message', (ev) => {
       document.head.appendChild(st);
     }
 
+    // Warm preload: chrome is styled and the 'cr-show' listener is live.
+    // Show a neutral placeholder and wait for the parent to push a record.
+    if (warm && !crId && !newFor){
+      document.getElementById('crRoot').innerHTML = emptyState(
+        ICON.doc, 'Ready', 'Select a Contract Review to preview.');
+      return;
+    }
+
     // Determine target mode from prefix (preview) or ?mode= (new CR)
     const mode = crId
       ? (crId.startsWith('socr__') ? 'socr' : 'qcr')
       : (params.get('mode') === 'socr' ? 'socr' : 'qcr');
+
+    /* ── FAST PATH (?cr=…) ────────────────────────────────────────
+       We already know the exact CR doc id, so fetch just that doc plus
+       its one source doc — 2 doc reads instead of 3 whole-collection
+       downloads (quotations + cr_saved + cr_saved again). No poll loops.
+
+       The slow path below is kept for ?newFor=, which genuinely needs
+       the collection to resolve "latest revision of QT123" via buildList().
+    */
+    if (crId){
+      const ok = await fastOpenCR(crId, mode, wantPrint);
+      if (ok) return;          // rendered — done
+      // else fall through to the original slow path as a safety net
+    }
 
     // Switch to target mode (triggers loadList for that collection)
     setMode(mode);
