@@ -4,36 +4,151 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Venus Engineering Works — Contract Review (QuotationCR)</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
+  /* ============================================================
+     DESIGN TOKENS — aligned to DesignBoard.html
+     Dark is the default; html[data-theme="light"] overrides below.
+
+     IMPORTANT: --border stays a DARK ink colour in BOTH themes.
+     It draws the A4 Contract Review table rules (table.cr td), which
+     print on white paper and must never follow the app chrome.
+     Chrome strokes use --stroke / --stroke-2 instead.
+     ============================================================ */
   :root{
-    --ink:#0b1220;
+    /* --- app chrome surfaces (theme-aware) --- */
+    --bg:        #09090B;
+    --bg-2:      #0D0D10;
+    --surface:   #131316;
+    --surface-2: #1A1A1F;
+    --surface-3: #212127;
+    --card:      #131316;
+
+    /* --- chrome strokes (theme-aware) --- */
+    --stroke:    rgba(255,255,255,.08);
+    --stroke-2:  rgba(255,255,255,.14);
+
+    /* --- chrome ink (theme-aware) --- */
+    --text:      #FAFAFA;
+    --text-2:    #A1A1AA;
+    --text-3:    #63636B;
+
+    /* --- accent --- */
+    --accent:      #6366F1;
+    --accent-2:    #8B5CF6;
+    --accent-soft: rgba(99,102,241,.14);
+    --accent-glow: rgba(99,102,241,.45);
+    --accent-ink:  #C7D2FE;   /* readable accent text on dark */
+
+    /* --- status --- */
+    --ok:#10B981; --warn:#F59E0B; --err:#F43F5E; --info:#38BDF8;
+    --success:#10B981;
+
+    /* --- type --- */
+    --font-ui:   'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+    --font-disp: 'Space Grotesk','Segoe UI',system-ui,sans-serif;
+    --font-paper:'Poppins',system-ui,-apple-system,sans-serif;
+
+    /* --- radius scale --- */
+    --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:24px;
+
+    /* --- elevation --- */
+    --shadow-sm: 0 1px 2px rgba(0,0,0,.4);
+    --shadow-md: 0 4px 16px rgba(0,0,0,.4);
+    --shadow-lg: 0 12px 40px rgba(0,0,0,.5);
+
+    /* --- PAPER (never theme-aware) --- */
+    --border:#0b1220;      /* A4 table rules — dark ink, both themes */
+    --ink:#0b1220;         /* paper body text */
     --ink-soft:#1f2937;
-    --muted:#64748b;
-    --border:#0b1220;
-    --line:#e5e7eb;
-    --line-2:#f1f5f9;
-    --bg:#f6f7fb;
-    --card:#ffffff;
-    --accent:#2563eb; 
-    --accent-2:#7c3aed;
-    --accent-soft:#eef2ff;
     --hilite:#fff7d6;
-    --success:#10b981;
-    --warn:#f59e0b;
-    --shadow-sm:0 1px 2px rgba(15,23,42,.06), 0 1px 3px rgba(15,23,42,.04);
-    --shadow-md:0 6px 18px rgba(15,23,42,.06), 0 2px 6px rgba(15,23,42,.04);
-    --shadow-lg:0 24px 50px -12px rgba(15,23,42,.18), 0 8px 16px rgba(15,23,42,.06);
+
+    /* --- legacy aliases, kept so untouched rules still resolve --- */
+    --muted:var(--text-2);
+    --line:var(--stroke);
+    --line-2:var(--surface-2);
+
+    /* shared 6-col grid for saved head + rows (single source of truth) */
+    --saved-cols:90px 1.2fr 2fr 1.2fr 1.3fr 130px;
+
+    /* inline SVG icon masks (data URIs — no network, print-safe) */
+    --icon-search:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E");
   }
+
+  /* ============================================================
+     LIGHT THEME OVERRIDES
+     ============================================================ */
+  html[data-theme="light"]{
+    --bg:#F6F6F8; --bg-2:#ECECEF;
+    --surface:#FFFFFF; --surface-2:#F1F1F4; --surface-3:#E4E4E9;
+    --card:#FFFFFF;
+    --stroke:rgba(17,17,19,.09); --stroke-2:rgba(17,17,19,.17);
+    --text:#111113; --text-2:#54545E; --text-3:#8A8A94;
+    --accent-ink:#4338CA;
+    --shadow-sm:0 1px 2px rgba(17,17,19,.08);
+    --shadow-md:0 4px 16px rgba(17,17,19,.10);
+    --shadow-lg:0 12px 40px rgba(17,17,19,.16);
+  }
+
   *{box-sizing:border-box;margin:0;padding:0;}
   html,body{height:100%;}
   body{
-    font-family:'Poppins',system-ui,-apple-system,sans-serif;
-    color:var(--ink);
-    background:#fff;
+    font-family:var(--font-ui);
+    color:var(--text);
+    background:var(--bg);
     -webkit-font-smoothing:antialiased;
     text-rendering:optimizeLegibility;
   }
+  ::selection{background:var(--accent);color:#fff;}
+
+  /* Chrome scrollbars */
+  ::-webkit-scrollbar{width:10px;height:10px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{
+    background:var(--surface-3);border-radius:99px;
+    border:2px solid transparent;background-clip:padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover{background:var(--stroke-2);}
+
+  /* Global focus-visible ring — keyboard nav must always be visible */
+  :focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:2px;
+    border-radius:var(--r-sm);
+  }
+
+  /* Honour reduced-motion (DesignBoard parity) */
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{
+      animation-duration:.01ms !important;
+      animation-iteration-count:1 !important;
+      transition-duration:.01ms !important;
+    }
+  }
+
+  /* ===== AMBIENT BACKDROP (dark only) ===== */
+  .ambient{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+  .ambient::before{
+    content:'';position:absolute;top:-320px;left:50%;transform:translateX(-50%);
+    width:900px;height:640px;border-radius:50%;
+    background:radial-gradient(closest-side,var(--accent-soft),transparent 70%);
+    filter:blur(40px);
+  }
+  .ambient::after{
+    content:'';position:absolute;inset:0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px);
+    background-size:56px 56px;
+    mask-image:radial-gradient(ellipse 90% 60% at 50% 0%, #000 0%, transparent 72%);
+    -webkit-mask-image:radial-gradient(ellipse 90% 60% at 50% 0%, #000 0%, transparent 72%);
+  }
+  html[data-theme="light"] .ambient::after{
+    background-image:
+      linear-gradient(rgba(0,0,0,.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,0,0,.035) 1px, transparent 1px);
+  }
+  .app-header,.app-tabs,.app-grid,.saved-panel{position:relative;z-index:1;}
 
   /* ===== APP HEADER ===== */
   .app-header{
@@ -42,143 +157,114 @@
   }
   .app-brand{display:flex;flex-direction:column;line-height:1.15;}
   .app-brand .title{
-    font-size:1.6rem;font-weight:700;letter-spacing:-.02em;color:var(--ink);
+    font-family:var(--font-disp);
+    font-size:1.6rem;font-weight:700;letter-spacing:-.02em;color:var(--text);
   }
   .app-brand .title .ver{
-    font-size:.95rem;font-weight:500;color:var(--muted);margin-left:.4rem;
+    font-family:var(--font-ui);
+    font-size:.95rem;font-weight:500;color:var(--text-3);margin-left:.4rem;
     letter-spacing:0;
   }
   .app-brand .subtitle{
-    font-size:.78rem;color:#c0392b;font-weight:600;
-    letter-spacing:.04em;text-transform:uppercase;margin-top:.15rem;
+    font-size:.72rem;color:var(--text-2);font-weight:600;
+    letter-spacing:.12em;text-transform:uppercase;margin-top:.2rem;
   }
 
   .toolbar{margin-left:auto;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;}
   .btn{
-    font-family:inherit;font-size:.82rem;font-weight:600;
-    padding:.55rem .95rem;border-radius:10px;cursor:pointer;
-    border:1px solid var(--line);background:#fff;color:var(--ink);
-    display:inline-flex;align-items:center;gap:.45rem;
+    font-family:inherit;font-size:12.5px;font-weight:600;
+    height:34px;padding:0 14px;border-radius:var(--r-sm);cursor:pointer;
+    border:1px solid var(--stroke-2);background:var(--surface-2);color:var(--text);
+    display:inline-flex;align-items:center;justify-content:center;gap:.45rem;
+    white-space:nowrap;
     transition:transform .08s ease, box-shadow .15s ease, background .15s ease, border-color .15s ease;
-    box-shadow:var(--shadow-sm);
   }
-  .btn:hover{background:#fafbff;border-color:#cbd5e1;}
+  .btn:hover{background:var(--surface-3);border-color:var(--stroke-2);}
   .btn:active{transform:translateY(1px);}
   .btn.primary{
     background:linear-gradient(135deg,var(--accent) 0%,var(--accent-2) 100%);
     color:#fff;border-color:transparent;
-    box-shadow:0 8px 20px -6px rgba(37,99,235,.5);
+    box-shadow:0 8px 20px -8px var(--accent-glow);
   }
-  .btn.primary:hover{filter:brightness(1.05);}
+  .btn.primary:hover{filter:brightness(1.08);}
 
-  /* QCR (default blue) outlined btns tint */
-  .btn:not(.primary){
-    border-color:#bfdbfe;color:#1e3a8a;
-  }
-  .btn:not(.primary):hover{background:#eff6ff;border-color:#93c5fd;}
+  /* Icon-only button (theme toggle) */
+  .btn.icon{width:34px;padding:0;font-size:14px;}
+
+  .btn svg{width:14px;height:14px;flex:none;}
+
+  /* ===== THEME TOGGLE ===== */
+  .theme-toggle .sun{display:none;}
+  .theme-toggle .moon{display:block;}
+  html[data-theme="light"] .theme-toggle .sun{display:block;}
+  html[data-theme="light"] .theme-toggle .moon{display:none;}
 
   /* ===== TABS ===== */
   .app-tabs{
     max-width:1500px;margin:0 auto 1.2rem;padding:.4rem 1.25rem 1.2rem;
     display:flex;justify-content:center;
   }
+  /* Flat segmented control (replaces the old neumorphic strip).
+     Uses --accent so SO/Saved themes retint automatically; no fixed
+     width, so labels never clip. */
   .radio-inputs{
-    position:relative;display:flex;flex-wrap:wrap;
-    border-radius:1rem;
-    background:linear-gradient(145deg,#e6e6e6,#ffffff);
+    position:relative;display:inline-flex;flex-wrap:nowrap;
+    border-radius:var(--r-md);
+    background:var(--surface-2);
+    border:1px solid var(--stroke);
     box-sizing:border-box;
-    box-shadow:
-      5px 5px 15px rgba(0,0,0,0.15),
-      -5px -5px 15px rgba(255,255,255,0.8);
-    padding:0.5rem;
-    width:480px;font-size:14px;gap:0.5rem;
+    padding:4px;font-size:13px;gap:2px;
+    box-shadow:var(--shadow-sm);
   }
-  .radio-inputs .radio{
-    flex:1 1 auto;text-align:center;position:relative;
+  .radio-inputs .radio{flex:1 1 auto;text-align:center;position:relative;}
+  .radio-inputs .radio input{
+    position:absolute;opacity:0;width:100%;height:100%;
+    left:0;top:0;margin:0;cursor:pointer;
   }
-  .radio-inputs .radio input{display:none;}
   .radio-inputs .radio .name{
-    display:flex;cursor:pointer;align-items:center;justify-content:center;
-    border-radius:0.7rem;border:none;padding:0.7rem 0;
-    color:#2d3748;font-weight:500;font-family:inherit;
-    background:linear-gradient(145deg,#ffffff,#e6e6e6);
-    box-shadow:
-      3px 3px 6px rgba(0,0,0,0.1),
-      -3px -3px 6px rgba(255,255,255,0.7);
-    transition:all 0.2s ease;
-    overflow:hidden;
+    display:flex;cursor:pointer;align-items:center;justify-content:center;gap:.4rem;
+    border-radius:var(--r-sm);border:1px solid transparent;
+    padding:.5rem 1rem;white-space:nowrap;
+    color:var(--text-2);font-weight:600;font-family:inherit;
+    transition:background .15s ease, color .15s ease, border-color .15s ease;
   }
+  .radio-inputs .radio:hover .name{background:var(--surface-3);color:var(--text);}
   .radio-inputs .radio input:checked + .name{
-    background:linear-gradient(145deg,#3b82f6,#2563eb);
-    color:white;font-weight:600;
-    text-shadow:0 1px 2px rgba(0,0,0,0.2);
-    box-shadow:
-      inset 2px 2px 5px rgba(0,0,0,0.2),
-      inset -2px -2px 5px rgba(255,255,255,0.1),
-      3px 3px 8px rgba(59,130,246,0.3);
-    transform:translateY(2px);
-    animation:select 0.3s cubic-bezier(0.4,0,0.2,1);
+    background:var(--accent-soft);
+    border-color:var(--accent);
+    color:var(--accent-ink);
   }
-  .radio-inputs .radio:hover .name{
-    background:linear-gradient(145deg,#f0f0f0,#ffffff);
-    transform:translateY(-1px);
-    box-shadow:
-      4px 4px 8px rgba(0,0,0,0.1),
-      -4px -4px 8px rgba(255,255,255,0.8);
+  /* Keyboard focus on the visually-hidden radio → ring on its label */
+  .radio-inputs .radio input:focus-visible + .name{
+    outline:2px solid var(--accent);outline-offset:2px;
   }
-  .radio-inputs .radio:hover input:checked + .name{
-    transform:translateY(1px);
-  }
-  .radio-inputs .radio:nth-child(2) input:checked + .name{
-    background:linear-gradient(145deg,#34d399,#10b981);
-    box-shadow:
-      inset 2px 2px 5px rgba(0,0,0,0.2),
-      inset -2px -2px 5px rgba(255,255,255,0.1),
-      3px 3px 8px rgba(16,185,129,0.3);
-  }
-  .radio-inputs .radio:nth-child(3) input:checked + .name{
-    background:linear-gradient(145deg,#fde68a,#f59e0b);
-    color:#7c4a03;
-    text-shadow:0 1px 2px rgba(255,255,255,0.4);
-    box-shadow:
-      inset 2px 2px 5px rgba(0,0,0,0.15),
-      inset -2px -2px 5px rgba(255,255,255,0.3),
-      3px 3px 8px rgba(245,158,11,0.3);
-  }
-  @keyframes select{
-    0%{transform:scale(0.95) translateY(2px);}
-    50%{transform:scale(1.05) translateY(-1px);}
-    100%{transform:scale(1) translateY(2px);}
-  }
+  .radio-inputs .radio .name svg{width:15px;height:15px;flex:none;}
 
-  /* ===== SO THEME (green) ===== */
+  /* ===== MODE ACCENTS =====
+     Each mode only swaps accent tokens; every component that uses
+     var(--accent) retints for free. No per-component hex overrides. */
   body.theme-so{
-    --accent:#059669;       /* emerald-600 */
-    --accent-2:#0d9488;     /* teal-600 */
-    --accent-soft:#ecfdf5;  /* emerald-50 */
+    --accent:#10B981;
+    --accent-2:#0D9488;
+    --accent-soft:rgba(16,185,129,.14);
+    --accent-glow:rgba(16,185,129,.45);
+    --accent-ink:#6EE7B7;
   }
-  body.theme-so .btn.primary{
-    box-shadow:0 8px 20px -6px rgba(5,150,105,.5);
-  }
-  body.theme-so .btn:not(.primary){
-    border-color:#a7f3d0;color:#065f46;
-  }
-  body.theme-so .btn:not(.primary):hover{background:#ecfdf5;border-color:#6ee7b7;}
+  html[data-theme="light"] body.theme-so{ --accent-ink:#047857; }
 
-  /* Saved (yellow) theme btns */
-  body.theme-saved .btn.primary{
-    background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);
-    box-shadow:0 8px 20px -6px rgba(245,158,11,.55);
+  body.theme-saved{
+    --accent:#F59E0B;
+    --accent-2:#D97706;
+    --accent-soft:rgba(245,158,11,.14);
+    --accent-glow:rgba(245,158,11,.45);
+    --accent-ink:#FCD34D;
   }
-  body.theme-saved .btn:not(.primary){
-    border-color:#fde68a;color:#7c4a03;
-  }
-  body.theme-saved .btn:not(.primary):hover{background:#fffbeb;border-color:#fcd34d;}
-  body.theme-so .picker-row.active{
-    background:linear-gradient(90deg,rgba(5,150,105,.07) 0%, rgba(13,148,136,.04) 100%);
-  }
-  body.theme-so .saved-row .badge.qcr{background:#dbeafe;color:#1e40af;}
-  body.theme-so .saved-row .badge.socr{background:#d1fae5;color:#065f46;}
+  html[data-theme="light"] body.theme-saved{ --accent-ink:#B45309; }
+
+  .badge.qcr{background:rgba(99,102,241,.14);color:var(--accent-ink);}
+  .badge.socr{background:rgba(16,185,129,.14);color:#6EE7B7;}
+  html[data-theme="light"] .badge.qcr{background:rgba(67,56,202,.10);color:#4338CA;}
+  html[data-theme="light"] .badge.socr{background:rgba(4,120,87,.10);color:#047857;}
 
   /* ===== APP GRID (CR left, picker right) ===== */
   .app-grid{
@@ -196,28 +282,31 @@
   }
 
   /* ===== QUOTATION PICKER ===== */
-  .picker{padding:0;}
+  .picker{padding:0;display:flex;min-height:0;}
+  /* Single flex column, one max-height at the top. Children use
+     min-height:0 + flex:1 so the list scrolls without magic numbers. */
   .picker-card{
     background:var(--card);
-    border:1px solid var(--line);
-    border-radius:14px;
+    border:1px solid var(--stroke);
+    border-radius:var(--r-lg);
     overflow:hidden;
     display:flex;
     flex-direction:column;
+    min-height:0;
+    flex:1;
     max-height:calc(100vh - 2rem);
     box-shadow:var(--shadow-md);
-    display:flex;flex-direction:column;
-    max-height:calc(100vh - 2rem);
   }
   .picker-head{
     padding:1rem 1.1rem;
     display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;
-    border-bottom:1px solid var(--line);
-    background:linear-gradient(180deg,#fff 0%, #fafbff 100%);
+    border-bottom:1px solid var(--stroke);
+    background:var(--surface-2);
+    flex:none;
   }
   .picker-head .label{
     font-weight:700;font-size:.95rem;letter-spacing:-.005em;
-    display:flex;align-items:center;gap:.55rem;color:var(--ink);
+    display:flex;align-items:center;gap:.55rem;color:var(--text);
   }
   .picker-head .label .dot{
     width:8px;height:8px;border-radius:50%;
@@ -225,115 +314,208 @@
     box-shadow:0 0 0 4px rgba(37,99,235,.12);
   }
   .picker-head .count{
-    font-size:.7rem;font-weight:700;color:var(--muted);
-    background:var(--line-2);padding:.2rem .55rem;border-radius:999px;
+    font-size:.7rem;font-weight:700;color:var(--text-2);
+    background:var(--surface-3);padding:.2rem .55rem;border-radius:999px;
     letter-spacing:.04em;
   }
   .search-wrap{margin-left:auto;position:relative;min-width:280px;}
   .search-wrap input{
-    width:100%;padding:.6rem .9rem .6rem 2.2rem;
-    border-radius:10px;border:1px solid var(--line);
-    background:#fff;font:inherit;font-size:.85rem;color:var(--ink);
+    width:100%;padding:.6rem .9rem .6rem 2.35rem;
+    border-radius:var(--r-sm);border:1px solid var(--stroke-2);
+    background:var(--surface);font:inherit;font-size:.85rem;color:var(--text);
     transition:border-color .15s, box-shadow .15s;
   }
+  .search-wrap input::placeholder{color:var(--text-3);}
   .search-wrap input:focus{
     outline:none;border-color:var(--accent);
-    box-shadow:0 0 0 4px rgba(37,99,235,.12);
+    box-shadow:0 0 0 3px var(--accent-soft);
   }
+  /* SVG magnifier — replaces the "⌕" glyph, which renders
+     inconsistently across Windows font fallbacks. */
   .search-wrap::before{
-    content:"⌕";position:absolute;left:.75rem;top:50%;transform:translateY(-50%);
-    font-size:1rem;opacity:.55;font-weight:700;
+    content:"";position:absolute;left:.7rem;top:50%;
+    width:14px;height:14px;margin-top:-7px;
+    background-color:var(--text-3);
+    -webkit-mask:var(--icon-search) center/contain no-repeat;
+    mask:var(--icon-search) center/contain no-repeat;
+    pointer-events:none;
   }
 
   .picker-list{
-    flex:1;
+    flex:1 1 auto;
     overflow-y:auto;
-    max-height:calc(100vh - 240px);
-    min-height:200px;
+    min-height:0;
   }
-  .picker-list::-webkit-scrollbar{width:8px;}
-  .picker-list::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:99px;}
-  .picker-list::-webkit-scrollbar-track{background:transparent;}
 
   .picker-row{
     display:flex;align-items:center;gap:.75rem;
+    width:100%;text-align:left;
+    font-family:inherit;
+    background:transparent;border:none;
+    border-bottom:1px solid var(--stroke);
     padding:.7rem .9rem;
-    border-bottom:1px solid var(--line-2);
+    color:var(--text);
     font-size:.82rem;cursor:pointer;
-    transition:background .12s ease;
+    transition:background .12s ease, box-shadow .12s ease;
   }
   .picker-row:last-child{border-bottom:none;}
-  .picker-row:hover{background:#f8faff;}
+  .picker-row:hover{background:var(--surface-2);}
+  .picker-row:active{background:var(--surface-3);}
   .picker-row.active{
-    background:linear-gradient(90deg,rgba(37,99,235,.07) 0%, rgba(124,58,237,.04) 100%);
+    background:var(--accent-soft);
     box-shadow:inset 3px 0 0 var(--accent);
   }
+  /* Row children are <span>s (valid inside the <button> row) — they must
+     be told to lay out as blocks/flex explicitly. */
   .picker-row .row-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:.15rem;}
   .picker-row .row-top{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;}
-  .picker-row .qno{font-weight:700;color:var(--ink);letter-spacing:-.01em;}
+  .picker-row .cust,
+  .picker-row .open-btn{display:block;}
+  .picker-row .open-btn{align-self:center;}
+  .picker-row .qno{
+    font-family:var(--font-disp);
+    font-weight:700;color:var(--text);letter-spacing:-.01em;
+    font-variant-numeric:tabular-nums;
+  }
   .picker-row .cust{
-    color:var(--ink-soft);font-size:.8rem;
+    color:var(--text-2);font-size:.8rem;
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
   }
   .picker-row .meta{
-    color:var(--muted);font-size:.72rem;
+    color:var(--text-3);font-size:.72rem;
     display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;
+    font-variant-numeric:tabular-nums;
   }
-  .picker-row .meta .dot-sep{color:#cbd5e1;}
+  .picker-row .meta .dot-sep{color:var(--stroke-2);}
   .picker-row .amount{
-    font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink);
+    font-weight:700;font-variant-numeric:tabular-nums;color:var(--text-2);
     font-size:.78rem;white-space:nowrap;
   }
   .picker-row .rev{
     display:inline-block;font-size:.62rem;font-weight:700;
-    background:#0b1220;color:#fff;padding:1px 7px;border-radius:999px;
+    background:var(--surface-3);color:var(--text-2);
+    border:1px solid var(--stroke-2);
+    padding:1px 7px;border-radius:999px;
     letter-spacing:.04em;
   }
-  .picker-row .draft{background:linear-gradient(135deg,#f59e0b,#ef4444);}
+  .picker-row .draft{
+    background:rgba(245,158,11,.16);color:#FBBF24;
+    border-color:rgba(245,158,11,.35);
+  }
+  html[data-theme="light"] .picker-row .draft{color:#B45309;}
   .picker-row .open-btn{
-    padding:.35rem .65rem;font-size:.72rem;border-radius:7px;
+    padding:.35rem .7rem;font-size:.72rem;border-radius:var(--r-sm);
     border:1px solid var(--accent);
     background:var(--accent);color:#fff;
     cursor:pointer;font-weight:600;letter-spacing:.01em;
+    font-family:inherit;flex:none;
     transition:filter .15s, transform .08s;
   }
-  .picker-row .open-btn:hover{filter:brightness(1.08);}
+  .picker-row .open-btn:hover{filter:brightness(1.1);}
   .picker-row .open-btn:active{transform:translateY(1px);}
   .picker-row .open-btn.edit{
-    background:#f59e0b;border-color:#d97706;color:#fff;
+    background:transparent;border-color:var(--stroke-2);color:var(--text-2);
   }
-  .picker-row .open-btn.edit:hover{filter:brightness(1.05);}
+  .picker-row .open-btn.edit:hover{
+    background:var(--surface-3);color:var(--text);border-color:var(--stroke-2);filter:none;
+  }
   .picker-row .row-editors{
     display:flex;flex-wrap:wrap;gap:.35rem .65rem;margin-top:.3rem;
-    font-size:.72rem;color:var(--muted);
+    font-size:.72rem;color:var(--text-3);
   }
   .picker-row .row-editor{display:inline-flex;align-items:center;gap:.25rem;}
-  .picker-row .row-editor .who{color:#047857;font-weight:600;}
+  .picker-row .row-editor .who{color:var(--ok);font-weight:600;}
   /* hide old activity live strip — presence shown inline next to quotation */
   .activity-live{display:none !important;}
 
-  .picker-empty,.loading{padding:2rem 1rem;text-align:center;color:var(--muted);font-size:.88rem;}
+  .picker-empty,.loading{padding:2rem 1rem;text-align:center;color:var(--text-3);font-size:.88rem;}
+
+  /* ===== EMPTY STATE ===== */
+  .empty-state{
+    padding:2.75rem 1.5rem;text-align:center;
+    display:flex;flex-direction:column;align-items:center;gap:.5rem;
+  }
+  .empty-state .ico{
+    width:44px;height:44px;border-radius:50%;
+    display:grid;place-items:center;
+    background:var(--surface-2);border:1px solid var(--stroke);
+    color:var(--text-3);margin-bottom:.15rem;
+  }
+  .empty-state .ico svg{width:20px;height:20px;}
+  .empty-state .title{font-weight:600;font-size:.88rem;color:var(--text);}
+  .empty-state .hint{font-size:.78rem;color:var(--text-3);max-width:30ch;line-height:1.5;}
+
+  /* ===== TOASTS ===== */
+  .toast-host{
+    position:fixed;bottom:1.25rem;right:1.25rem;z-index:9999;
+    display:flex;flex-direction:column;gap:.5rem;
+    align-items:flex-end;pointer-events:none;
+  }
+  .toast{
+    display:flex;align-items:flex-start;gap:.6rem;
+    max-width:min(420px,calc(100vw - 2.5rem));
+    padding:.7rem .9rem;
+    border-radius:var(--r-md);
+    background:var(--surface-2);
+    border:1px solid var(--stroke-2);
+    color:var(--text);
+    font-size:.82rem;line-height:1.45;font-weight:500;
+    box-shadow:var(--shadow-lg);
+    opacity:0;transform:translateY(8px) scale(.98);
+    transition:opacity .2s ease, transform .2s ease;
+    pointer-events:auto;
+  }
+  .toast.in{opacity:1;transform:translateY(0) scale(1);}
+  .toast .t-ico{flex:none;display:grid;place-items:center;margin-top:1px;}
+  .toast .t-ico svg{width:15px;height:15px;}
+  .toast.ok  .t-ico{color:var(--ok);}
+  .toast.err .t-ico{color:var(--err);}
+  .toast:not(.ok):not(.err) .t-ico{color:var(--info);}
+  .toast .t-msg{min-width:0;overflow-wrap:anywhere;}
+  .toast.err{border-color:rgba(244,63,94,.4);}
+  .toast.ok{border-color:rgba(16,185,129,.35);}
+
+  /* ===== SKELETON LOADERS ===== */
+  .sk-row{
+    display:flex;align-items:center;gap:.75rem;
+    padding:.75rem .9rem;border-bottom:1px solid var(--stroke);
+  }
+  .sk-row .sk-main{flex:1;display:flex;flex-direction:column;gap:.4rem;}
+  .sk{
+    background:linear-gradient(90deg,var(--surface-2) 25%,var(--surface-3) 37%,var(--surface-2) 63%);
+    background-size:400% 100%;
+    border-radius:5px;height:9px;
+    animation:sk-sheen 1.3s ease-in-out infinite;
+  }
+  .sk.w40{width:40%;} .sk.w65{width:65%;} .sk.w25{width:25%;}
+  .sk.btn-sk{width:52px;height:24px;border-radius:var(--r-sm);flex:none;}
+  @keyframes sk-sheen{
+    0%{background-position:100% 50%;}
+    100%{background-position:0 50%;}
+  }
 
   /* ===== SIDEBAR TAB STRIP (Quotations / Activity) ===== */
   .side-tabs{
-    display:flex;gap:.3rem;padding:.5rem .6rem 0;border-bottom:1px solid var(--line);
-    background:var(--card);
+    display:flex;gap:.3rem;padding:.5rem .6rem 0;
+    border-bottom:1px solid var(--stroke);
+    background:var(--surface-2);flex:none;
   }
   .side-tab{
     font:inherit;font-size:.78rem;font-weight:600;
     padding:.5rem .8rem;border:none;background:transparent;
-    color:var(--muted);cursor:pointer;border-radius:8px 8px 0 0;
+    color:var(--text-3);cursor:pointer;border-radius:var(--r-sm) var(--r-sm) 0 0;
     border-bottom:2px solid transparent;margin-bottom:-1px;
     display:inline-flex;align-items:center;gap:.35rem;
     transition:color .15s,border-color .15s,background .15s;
   }
-  .side-tab:hover{color:var(--ink);background:#f8faff;}
-  .side-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+  .side-tab:hover{color:var(--text);background:var(--surface-3);}
+  .side-tab.active{color:var(--accent-ink);border-bottom-color:var(--accent);}
   .side-tab .pill{
-    font-size:.62rem;background:var(--line-2);color:var(--muted);
+    font-size:.62rem;background:var(--surface-3);color:var(--text-3);
     padding:1px 7px;border-radius:99px;font-weight:700;
+    font-variant-numeric:tabular-nums;
   }
-  .side-tab.active .pill{background:#dbeafe;color:#1e40af;}
+  .side-tab.active .pill{background:var(--accent-soft);color:var(--accent-ink);}
 
   /* Presence dot */
   .presence-dot{
@@ -349,159 +531,178 @@
   .picker-row .presence-wrap{display:inline-flex;align-items:center;gap:.2rem;}
 
   /* Activity panel */
-  .activity-panel{display:none;}
-  .activity-panel.active{display:block;}
-  .quotations-panel{display:block;}
-  .quotations-panel.hidden{display:none;}
+  /* Panel visibility + flex sizing are consolidated further down —
+     search for the "Panel visibility + flex sizing" rule block. */
   .activity-live{
     padding:.55rem .85rem;font-size:.78rem;
-    background:linear-gradient(90deg,#ecfdf5 0%,#f0fdfa 100%);
-    border-bottom:1px solid #d1fae5;color:#065f46;font-weight:600;
+    background:var(--accent-soft);
+    border-bottom:1px solid var(--stroke);color:var(--text);font-weight:600;
     display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;
   }
   .activity-live:empty{display:none;}
-  .activity-live .who{color:#047857;}
-  .activity-list{max-height:60vh;overflow-y:auto;}
-  .activity-list::-webkit-scrollbar{width:8px;}
-  .activity-list::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:99px;}
+  .activity-live .who{color:var(--ok);}
+  .activity-list{flex:1 1 auto;min-height:0;overflow-y:auto;}
   .activity-row{
-    padding:.6rem .85rem;border-bottom:1px solid var(--line-2);
-    font-size:.78rem;color:var(--ink-soft);
+    padding:.6rem .85rem;border-bottom:1px solid var(--stroke);
+    font-size:.78rem;color:var(--text-2);
     display:flex;flex-direction:column;gap:.15rem;
   }
-  .activity-row:hover{background:#f8faff;}
+  .activity-row:hover{background:var(--surface-2);}
   .activity-row .top{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;}
-  .activity-row .who{font-weight:700;color:var(--ink);}
+  .activity-row .who{font-weight:700;color:var(--text);}
   .activity-row .badge{
     font-size:.6rem;font-weight:700;letter-spacing:.04em;
     padding:1px 6px;border-radius:99px;text-transform:uppercase;
   }
-  .activity-row .badge.open{background:#dbeafe;color:#1e40af;}
-  .activity-row .badge.save{background:#d1fae5;color:#065f46;}
-  .activity-row .badge.edit{background:#fef3c7;color:#7c4a03;}
-  .activity-row .badge.lock{background:#fee2e2;color:#991b1b;}
-  .activity-row .badge.rep-change{background:#ede9fe;color:#5b21b6;}
-  .activity-row .ts{margin-left:auto;font-size:.7rem;color:var(--muted);}
-  .activity-row .detail{font-size:.74rem;color:var(--muted);}
-  .activity-row .detail .from{color:#b91c1c;text-decoration:line-through;}
-  .activity-row .detail .to{color:#047857;font-weight:600;}
-  .activity-empty{padding:2rem 1rem;text-align:center;color:var(--muted);font-size:.85rem;}
+  .activity-row .badge.open{background:rgba(56,189,248,.14);color:#7DD3FC;}
+  .activity-row .badge.save{background:rgba(16,185,129,.14);color:#34D399;}
+  .activity-row .badge.edit{background:rgba(245,158,11,.14);color:#FBBF24;}
+  .activity-row .badge.lock{background:rgba(244,63,94,.14);color:#FB7185;}
+  .activity-row .badge.rep-change{background:rgba(139,92,246,.16);color:#C4B5FD;}
+  html[data-theme="light"] .activity-row .badge.open{background:rgba(2,132,199,.10);color:#0369A1;}
+  html[data-theme="light"] .activity-row .badge.save{background:rgba(4,120,87,.10);color:#047857;}
+  html[data-theme="light"] .activity-row .badge.edit{background:rgba(180,83,9,.10);color:#B45309;}
+  html[data-theme="light"] .activity-row .badge.lock{background:rgba(190,18,60,.10);color:#BE123C;}
+  html[data-theme="light"] .activity-row .badge.rep-change{background:rgba(109,40,217,.10);color:#6D28D9;}
+  .activity-row .ts{
+    margin-left:auto;font-size:.7rem;color:var(--text-3);
+    font-variant-numeric:tabular-nums;
+  }
+  .activity-row .detail{font-size:.74rem;color:var(--text-3);}
+  .activity-row .detail .from{color:var(--err);text-decoration:line-through;}
+  .activity-row .detail .to{color:var(--ok);font-weight:600;}
+  .activity-empty{padding:2rem 1rem;text-align:center;color:var(--text-3);font-size:.85rem;}
+  /* Panel visibility + flex sizing (single source of truth).
+     JS toggles .active on activityPanel and .hidden on quotationsPanel. */
+  .activity-panel{display:none;flex-direction:column;min-height:0;}
+  .activity-panel.active{display:flex;flex:1;}
+  .quotations-panel{display:flex;flex-direction:column;min-height:0;flex:1;}
+  .quotations-panel.hidden{display:none;}
   .loading::before{
     content:"";display:inline-block;width:14px;height:14px;
-    border:2px solid var(--line);border-top-color:var(--accent);
+    border:2px solid var(--stroke-2);border-top-color:var(--accent);
     border-radius:50%;margin-right:.6rem;vertical-align:-2px;
     animation:spin 0.8s linear infinite;
   }
   @keyframes spin{to{transform:rotate(360deg);}}
 
   /* ===== SAVED RECORDS ===== */
-  .saved-panel{max-width:1180px;margin:0 auto 1.5rem;padding:0 1rem;}
+  /* Matches .app-grid max-width so switching tabs doesn't jump width */
+  .saved-panel{max-width:1500px;margin:0 auto 2rem;padding:0 1.25rem;}
   .saved-card{
-    background:var(--card);border:1px solid var(--line);border-radius:16px;
+    background:var(--card);border:1px solid var(--stroke);border-radius:var(--r-lg);
     overflow:hidden;box-shadow:var(--shadow-md);
   }
   .saved-head{
     padding:1rem 1.1rem;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;
-    border-bottom:1px solid var(--line);
-    background:linear-gradient(180deg,#fff 0%, #fafbff 100%);
+    border-bottom:1px solid var(--stroke);
+    background:var(--surface-2);
   }
-  .saved-head .label{font-weight:700;font-size:.95rem;display:flex;align-items:center;gap:.55rem;}
+  .saved-head .label{
+    font-weight:700;font-size:.95rem;display:flex;align-items:center;gap:.55rem;
+    color:var(--text);
+  }
   .saved-head .label .dot{
     width:8px;height:8px;border-radius:50%;
     background:linear-gradient(135deg,var(--accent),var(--accent-2));
-    box-shadow:0 0 0 4px rgba(37,99,235,.12);
+    box-shadow:0 0 0 4px var(--accent-soft);
   }
   .saved-head .count{
-    font-size:.7rem;font-weight:700;color:var(--muted);
-    background:var(--line-2);padding:.2rem .55rem;border-radius:999px;
+    font-size:.7rem;font-weight:700;color:var(--text-2);
+    background:var(--surface-3);padding:.2rem .55rem;border-radius:999px;
+    font-variant-numeric:tabular-nums;
   }
   .saved-filters{
     margin-left:auto;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;
   }
   .saved-filters .search-wrap{min-width:220px;}
   .saved-filters input[type=date], .saved-filters select{
-    padding:.55rem .75rem;border-radius:10px;border:1px solid var(--line);
-    background:#fff;font:inherit;font-size:.82rem;color:var(--ink);
+    height:34px;padding:0 .7rem;border-radius:var(--r-sm);
+    border:1px solid var(--stroke-2);
+    background:var(--surface);font:inherit;font-size:.82rem;color:var(--text);
   }
   .saved-filters input[type=date]:focus, .saved-filters select:focus{
-    outline:none;border-color:var(--accent);box-shadow:0 0 0 4px rgba(37,99,235,.12);
+    outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);
+  }
+  /* Dark-theme date picker indicator needs inverting to stay visible */
+  html:not([data-theme="light"]) .saved-filters input[type=date]::-webkit-calendar-picker-indicator{
+    filter:invert(1) opacity(.55);
   }
   .saved-table-head{
     display:grid;
-    grid-template-columns:90px 1.2fr 2fr 1.2fr 1.3fr 130px;
+    grid-template-columns:var(--saved-cols);
     gap:.75rem;padding:.6rem 1.1rem;
-    font-size:.68rem;font-weight:700;color:var(--muted);
+    font-size:.68rem;font-weight:700;color:var(--text-3);
     text-transform:uppercase;letter-spacing:.08em;
-    background:var(--line-2);border-bottom:1px solid var(--line);
+    background:var(--bg-2);border-bottom:1px solid var(--stroke);
   }
   .saved-table-head .right{text-align:right;}
-  .saved-list{max-height:560px;overflow-y:auto;}
-  .saved-list::-webkit-scrollbar{width:8px;}
-  .saved-list::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:99px;}
+  .saved-list{max-height:min(560px,calc(100vh - 320px));overflow-y:auto;}
   .saved-row{
     display:grid;
-    grid-template-columns:90px 1.2fr 2fr 1.2fr 1.3fr 130px;
+    grid-template-columns:var(--saved-cols);
     gap:.75rem;padding:.85rem 1.1rem;align-items:center;
-    border-bottom:1px solid var(--line-2);
+    width:100%;text-align:left;font-family:inherit;
+    background:transparent;border:none;
+    border-bottom:1px solid var(--stroke);
+    color:var(--text);
     font-size:.85rem;cursor:pointer;
     transition:background .12s ease;
   }
-  .saved-row:hover{background:#f8faff;}
+  .saved-row:last-child{border-bottom:none;}
+  .saved-row:hover{background:var(--surface-2);}
+  .saved-row:active{background:var(--surface-3);}
   .saved-row .badge{
     display:inline-block;font-size:.66rem;font-weight:700;letter-spacing:.04em;
     padding:3px 8px;border-radius:999px;text-transform:uppercase;
   }
-  .saved-row .badge.qcr{background:#dbeafe;color:#1e40af;}
-  .saved-row .badge.socr{background:#d1fae5;color:#065f46;}
-
-  /* Saved mode yellow accent */
-  body.theme-saved .saved-head{
-    background:linear-gradient(180deg,#fffbeb 0%, #fef3c7 100%);
-    border-bottom-color:#fde68a;
+  .saved-row .qno{
+    font-family:var(--font-disp);font-weight:700;color:var(--text);
+    font-variant-numeric:tabular-nums;
   }
-  body.theme-saved .saved-head .label .dot{
-    background:linear-gradient(135deg,#f59e0b,#d97706);
-    box-shadow:0 0 0 4px rgba(245,158,11,.18);
+  .saved-row .cust{color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .saved-row .meta{
+    color:var(--text-3);font-size:.8rem;
+    font-variant-numeric:tabular-nums;
   }
-  body.theme-saved .saved-head .count{
-    background:#fde68a;color:#7c4a03;
-  }
-  body.theme-saved .saved-filters input[type=date]:focus,
-  body.theme-saved .saved-filters select:focus{
-    border-color:#f59e0b;box-shadow:0 0 0 4px rgba(245,158,11,.18);
-  }
-  body.theme-saved .saved-row:hover{background:#fffbeb;}
-  body.theme-saved .saved-row .actions .open{
-    background:#f59e0b;border-color:#f59e0b;color:#fff;
-  }
-  .saved-row .qno{font-weight:700;color:var(--ink);}
-  .saved-row .cust{color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .saved-row .meta{color:var(--muted);font-size:.8rem;}
   .saved-row .actions{display:flex;gap:.4rem;justify-content:flex-end;}
   .saved-row .actions button{
-    padding:.4rem .65rem;font-size:.72rem;border-radius:8px;
-    cursor:pointer;font-weight:600;border:1px solid var(--line);background:#fff;
+    padding:.4rem .7rem;font-size:.72rem;border-radius:var(--r-sm);
+    cursor:pointer;font-weight:600;font-family:inherit;
+    border:1px solid var(--stroke-2);background:var(--surface-2);color:var(--text);
+    transition:background .15s, border-color .15s, color .15s;
   }
   .saved-row .actions .open{background:var(--accent);color:#fff;border-color:var(--accent);}
-  .saved-row .actions .del{color:#b91c1c;border-color:#fecaca;}
-  .saved-row .actions .del:hover{background:#fee2e2;}
+  .saved-row .actions .open:hover{filter:brightness(1.1);}
+  .saved-row .actions .del{color:var(--err);border-color:var(--stroke-2);background:transparent;}
+  .saved-row .actions .del:hover{background:rgba(244,63,94,.12);border-color:var(--err);}
 
-  /* ===== A4 PAGE ===== */
+  /* ===== A4 PAGE =====
+     Always a white sheet, in both themes — it is paper. Only its
+     surrounding shadow/ring changes so it reads as floating on dark. */
   .cr-page{
     width:210mm; min-height:297mm; padding:10mm 8mm;
     margin:1.5rem auto; background:#fff;
-    box-shadow:var(--shadow-lg);
+    box-shadow:var(--shadow-lg), 0 0 0 1px rgba(0,0,0,.35);
     border-radius:6px;
-    font-family:'Poppins',sans-serif;
+    font-family:var(--font-paper);
     font-size:8.5pt; line-height:1.25;
     color:var(--ink);
+  }
+  html[data-theme="light"] .cr-page{
+    box-shadow:var(--shadow-lg), 0 0 0 1px rgba(17,17,19,.08);
   }
   .cr-title-bar{
     border:0.5px solid var(--border);
     text-align:center;padding:6px 4px;
-    font-weight:700;font-size:11pt;color:#2563eb;
+    font-weight:700;font-size:11pt;
+    /* Paper accent — fixed per mode, independent of app chrome theme.
+       Overridden to ink-black for print further down. */
+    color:var(--paper-accent,#1d4ed8);
     letter-spacing:.02em;
   }
+  body.theme-so  .cr-page{ --paper-accent:#047857; }
+  body.theme-saved .cr-page{ --paper-accent:#B45309; }
   .cr-subtitle{
     border:0.5px solid var(--border);border-top:none;
     text-align:center;padding:5px 4px;
@@ -540,8 +741,13 @@
     padding:1px 2px;margin:0;border-radius:3px;
     transition:background .12s, outline-color .12s;
   }
-  .cr-edit:hover{outline-color:#cbd5e1;background:#f8fafc;}
-  .cr-edit:focus{outline:1.5px solid var(--accent);background:#fff;}
+  /* Paper-local hover/focus — deliberately NOT theme tokens, since the
+     sheet stays white in dark mode and needs dark-on-light affordances. */
+  .cr-edit:hover{outline-color:#cbd5e1;background:#f1f5f9;}
+  .cr-edit:focus{
+    outline:1.5px solid var(--paper-accent,#1d4ed8);
+    background:#fff;
+  }
 
   /* Ex-work / FOR toggle */
   .xw-toggle{cursor:pointer;user-select:none;}
@@ -559,37 +765,71 @@
     display:block;margin:1.5mm auto 0;
   }
   .sig-cell .sig-label{position:absolute;left:4px;top:2px;font-weight:600;font-size:7.5pt;}
-  .sig-cell .sig-name{position:absolute;left:0;right:0;bottom:1px;font-size:7pt;color:var(--muted);}
+  /* Paper-local grey — must NOT use --muted, which is theme-aware and
+     would go near-white on the white sheet in dark mode. */
+  .sig-cell .sig-name{position:absolute;left:0;right:0;bottom:1px;font-size:7pt;color:#64748b;}
 
   /* Responsive */
   @media (max-width: 1100px){
     .app-grid{grid-template-columns:1fr;}
     .sidebar{position:static;max-height:none;}
     .picker-card{max-height:480px;}
+    .saved-table-head{display:none;}
+    .saved-row{
+      grid-template-columns:1fr auto;
+      gap:.35rem .75rem;
+      padding:.85rem 1rem;
+    }
+    .saved-row .actions{grid-column:2;grid-row:1 / span 3;align-self:center;}
   }
   @media (max-width: 720px){
     .search-wrap{min-width:0;width:100%;}
-    .app-tabs{padding:0 1rem;}
+    .app-tabs{padding:0 1rem 1rem;}
     .app-grid{padding:0 1rem;}
+    .saved-panel{padding:0 1rem;}
+    .app-header{padding:0 1rem;}
+    .radio-inputs{width:100%;}
+    .radio-inputs .radio .name{padding:.5rem .5rem;font-size:12px;}
+    /* A4 sheet can't fit — let it scale down rather than overflow */
+    .cr-page{
+      width:100%;min-height:auto;padding:6mm 4mm;
+      margin:1rem auto;
+    }
   }
 
   /* PRINT */
   @media print{
     @page { size: A4; margin: 6mm; }
-    html,body{background:#fff;}
+    /* Force paper rendering regardless of the active app theme */
+    html,body{background:#fff !important;color:var(--ink) !important;}
+    .ambient{display:none !important;}
+    /* Keep highlights/badges from dropping out on colour-managed printers */
+    *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
     .cr-page{ --border:#888; }
+    /* Heading prints as ink, not accent — this is a B/W ISO form */
+    .cr-page .cr-title-bar{ color:#000 !important; }
     .app-topbar,.app-header,.app-tabs,.app-grid > .sidebar,.picker,.print-hide{display:none !important;}
     .app-grid{display:block;padding:0;}
+    /* Print type scale — screen pt sizes × --print-scale.
+       Tune the whole printed form's density from this one number. */
     .cr-page{
-      box-shadow:none;margin:0;padding:0;border-radius:0;
+      --print-scale:0.828;
+      box-shadow:none !important;margin:0;padding:0;border-radius:0;
       width:auto;min-height:auto;
-      font-size:7.04pt;line-height:1.25;
+      font-size:calc(8.5pt * var(--print-scale));line-height:1.25;
     }
-    .cr-page table.cr td{padding:2.5px 5px;font-size:7.04pt;line-height:1.25;}
-    .cr-page table.cr td.compact, .cr-page table.cr td.compact .cr-edit{font-size:6.34pt;line-height:1.18;}
-    .cr-page table.cr td.compact-xs, .cr-page table.cr td.compact-xs .cr-edit{font-size:5.98pt;line-height:1.15;}
-    .cr-page .cr-title-bar{font-size:9.24pt;padding:4px 4px;}
-    .cr-page .cr-subtitle{font-size:8.36pt;padding:3px 4px;}
+    .cr-page table.cr td{
+      padding:2.5px 5px;
+      font-size:calc(8.5pt * var(--print-scale));line-height:1.25;
+    }
+    .cr-page table.cr td.compact, .cr-page table.cr td.compact .cr-edit{
+      font-size:calc(7.5pt * var(--print-scale));line-height:1.18;
+    }
+    .cr-page table.cr td.compact-xs, .cr-page table.cr td.compact-xs .cr-edit{
+      font-size:calc(7pt * var(--print-scale));line-height:1.15;
+    }
+    .cr-page .cr-title-bar{font-size:calc(11pt * var(--print-scale));padding:4px 4px;}
+    .cr-page .cr-subtitle{font-size:calc(10pt * var(--print-scale));padding:3px 4px;}
     .cr-page .sig-cell{height:10mm;}
     .cr-page .sig-cell img{max-height:9mm;margin-top:0.5mm;}
     table.cr,table.cr tbody,table.cr tr,table.cr td{
@@ -598,8 +838,32 @@
     .cr-edit{outline:none !important;background:transparent !important;}
   }
 </style>
+
+<script>
+/* ============================================================
+   THEME — dark default, light override, persisted.
+   Runs in <head> BEFORE first paint so there is no flash of the
+   wrong theme on load.
+   ============================================================ */
+(function(){
+  var KEY = 'oursys.cr.theme';
+  var saved;
+  try { saved = localStorage.getItem(KEY); } catch(e){ /* private mode */ }
+  if (saved === 'light') document.documentElement.setAttribute('data-theme','light');
+
+  window.toggleTheme = function(){
+    var root  = document.documentElement;
+    var isLit = root.getAttribute('data-theme') === 'light';
+    if (isLit) root.removeAttribute('data-theme');
+    else       root.setAttribute('data-theme','light');
+    try { localStorage.setItem(KEY, isLit ? 'dark' : 'light'); } catch(e){}
+  };
+})();
+</script>
 </head>
 <body>
+
+<div class="ambient print-hide" aria-hidden="true"></div>
 
 <header class="app-header print-hide">
   <div class="app-brand">
@@ -608,13 +872,20 @@
   </div>
   <div class="toolbar">
     <button class="btn" onclick="loadList()" title="Reload from Firebase">
-      <span>↻</span><span>Reload</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg>
+      <span>Reload</span>
     </button>
     <button class="btn" id="btnSaveCR" onclick="saveCR()" title="Save CR to records">
-      <span>💾</span><span>Save CR</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/></svg>
+      <span>Save CR</span>
     </button>
     <button class="btn primary" onclick="window.print()">
-      <span>🖨</span><span>Print / Save PDF</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+      <span>Print / Save PDF</span>
+    </button>
+    <button class="btn icon theme-toggle" onclick="toggleTheme()" title="Toggle light / dark theme" aria-label="Toggle light or dark theme">
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.6 6.6 0 0 0 9.8 9.8z"/></svg>
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
     </button>
   </div>
 </header>
@@ -623,15 +894,24 @@
   <div class="radio-inputs">
     <label class="radio">
       <input type="radio" name="appTab" id="tabQuotation" checked onclick="setMode('qcr')">
-      <span class="name">📄 Quotation CR</span>
+      <span class="name">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+        <span>Quotation CR</span>
+      </span>
     </label>
     <label class="radio">
       <input type="radio" name="appTab" id="tabSO" onclick="setMode('socr')">
-      <span class="name">📦 SO CR</span>
+      <span class="name">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7L12 12l8.7-5M12 22V12"/></svg>
+        <span>SO CR</span>
+      </span>
     </label>
     <label class="radio">
       <input type="radio" name="appTab" id="tabSaved" onclick="setMode('saved')">
-      <span class="name">📁 Saved Records</span>
+      <span class="name">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1h-8l-2-2.5H4a1 1 0 0 0-1 1V19a1 1 0 0 0 1 1z"/></svg>
+        <span>Saved Records</span>
+      </span>
     </label>
   </div>
 </nav>
@@ -639,8 +919,10 @@
 <div class="app-grid">
   <main class="cr-col">
     <div id="crRoot">
-      <div style="padding:2rem;text-align:center;color:var(--muted);font-size:.9rem;">
-        Select a record from the right to render the Contract Review.
+      <div class="empty-state">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg></span>
+        <span class="title">No record selected</span>
+        <span class="hint">Pick a quotation from the list on the right to render its Contract Review.</span>
       </div>
     </div>
   </main>
@@ -706,7 +988,7 @@
       <div class="right">Actions</div>
     </div>
     <div class="saved-list" id="savedList">
-      <div class="loading">Loading saved records…</div>
+      <div class="loading">Loading saved records…</div><!-- replaced by skSavedRows() on load -->
     </div>
   </div>
 </section>
@@ -757,6 +1039,89 @@ const MODE_CFG = {
 
 function _cache()       { return _caches[_mode]; }
 function _selectedKey() { return _selected[_mode]; }
+
+/* ============================================================
+   UI HELPERS — skeletons + empty states
+============================================================ */
+const ICON = {
+  doc:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg>`,
+  search:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>`,
+  folder:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1h-8l-2-2.5H4a1 1 0 0 0-1 1V19a1 1 0 0 0 1 1z"/></svg>`,
+  alert:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>`,
+  check:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>`,
+  info: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>`
+};
+
+/** Skeleton rows for the picker list while Firestore loads. */
+function skPickerRows(n){
+  let out = '';
+  for (let i = 0; i < (n || 7); i++){
+    out += `<div class="sk-row" aria-hidden="true">
+      <div class="sk-main">
+        <div class="sk w40"></div>
+        <div class="sk w65"></div>
+        <div class="sk w25"></div>
+      </div>
+      <div class="sk btn-sk"></div>
+    </div>`;
+  }
+  return `<div role="status" aria-label="Loading">${out}</div>`;
+}
+
+/** Skeleton rows for the saved-records grid. */
+function skSavedRows(n){
+  let out = '';
+  for (let i = 0; i < (n || 6); i++){
+    out += `<div class="saved-row" aria-hidden="true" style="cursor:default;">
+      <div class="sk" style="width:64px;height:16px;border-radius:99px;"></div>
+      <div class="sk w65"></div>
+      <div class="sk w65"></div>
+      <div class="sk w40"></div>
+      <div class="sk w65"></div>
+      <div class="sk btn-sk" style="margin-left:auto;"></div>
+    </div>`;
+  }
+  return `<div role="status" aria-label="Loading">${out}</div>`;
+}
+
+/* ---- TOASTS ----
+   Replaces alert() for non-blocking feedback. NOTE: confirm() is
+   deliberately kept for destructive deletes — an irreversible action
+   should block until the user answers. */
+function toast(msg, kind, ms){
+  let host = document.getElementById('toastHost');
+  if (!host){
+    host = document.createElement('div');
+    host.id = 'toastHost';
+    host.className = 'toast-host print-hide';
+    host.setAttribute('role','status');
+    host.setAttribute('aria-live','polite');
+    document.body.appendChild(host);
+  }
+  const t = document.createElement('div');
+  t.className = 'toast' + (kind ? ' ' + kind : '');
+  const ic = kind === 'err' ? ICON.alert : (kind === 'ok' ? ICON.check : ICON.info);
+  t.innerHTML = `<span class="t-ico">${ic}</span><span class="t-msg"></span>`;
+  t.querySelector('.t-msg').textContent = String(msg);
+  host.appendChild(t);
+  // force reflow so the enter transition runs
+  void t.offsetWidth;
+  t.classList.add('in');
+  const life = ms || (kind === 'err' ? 6000 : 3200);
+  setTimeout(() => {
+    t.classList.remove('in');
+    setTimeout(() => t.remove(), 220);
+  }, life);
+}
+
+/** Consistent empty state. */
+function emptyState(icon, title, hint){
+  return `<div class="empty-state">
+    <span class="ico">${icon || ICON.doc}</span>
+    <span class="title">${title}</span>
+    ${hint ? `<span class="hint">${hint}</span>` : ''}
+  </div>`;
+}
 
 const fmt = {
   esc(s){
@@ -819,10 +1184,11 @@ function setMode(mode){
 }
 
 function clearCR(){
-  document.getElementById('crRoot').innerHTML =
-    `<div style="padding:2rem;text-align:center;color:var(--muted);font-size:.9rem;">
-       Select a record from the right to render the Contract Review.
-     </div>`;
+  document.getElementById('crRoot').innerHTML = emptyState(
+    ICON.doc,
+    'No record selected',
+    'Pick a record from the list on the right to render its Contract Review.'
+  );
 }
 
 /* ============================================================
@@ -830,7 +1196,7 @@ function clearCR(){
 ============================================================ */
 async function loadList(){
   const cfg = MODE_CFG[_mode];
-  document.getElementById('qList').innerHTML = `<div class="loading">${fmt.esc(cfg.loadingMsg)}</div>`;
+  document.getElementById('qList').innerHTML = skPickerRows(7);
   try {
     const [snap, savedSnap] = await Promise.all([
       db.collection(cfg.coll).get(),
@@ -840,18 +1206,13 @@ async function loadList(){
     snap.forEach(doc => { _caches[_mode][doc.id] = doc.data(); });
     _savedCache = {};
     savedSnap.forEach(doc => { _savedCache[doc.id] = doc.data(); });
-    // DEBUG — log every doc key + its _quotNo/quotNo so we can see what's missing
-    console.table(Object.entries(_caches[_mode]).map(([k, v]) => ({
-      docKey: k,
-      _quotNo: v._quotNo || '(none)',
-      quotNo:  v.quotNo  || '(none)',
-      custName: v.custName || v._custName || '(none)',
-      hasItems: Array.isArray(v.items) ? v.items.length : 'no'
-    })));
     renderList();
   } catch(e){
-    document.getElementById('qList').innerHTML =
-      `<div class="picker-empty">Failed to load: ${fmt.esc(e.message || e)}</div>`;
+    document.getElementById('qList').innerHTML = emptyState(
+      ICON.alert,
+      'Could not load records',
+      fmt.esc(e.message || e)
+    );
     console.error(e);
   }
 }
@@ -922,7 +1283,13 @@ function renderList(){
   const noun = (_mode === 'qcr') ? 'quote' : 'SO';
   if (countEl) countEl.textContent = rows.length + ' ' + noun + (rows.length === 1 ? '' : 's');
   if (!rows.length){
-    list.innerHTML = `<div class="picker-empty">No ${_mode === 'qcr' ? 'quotations' : 'sales orders'} found.</div>`;
+    const nounPl = (_mode === 'qcr') ? 'quotations' : 'sales orders';
+    const searching = !!(filter || '').trim();
+    list.innerHTML = searching
+      ? emptyState(ICON.search, 'No matches',
+          `No ${nounPl} match “${fmt.esc(filter.trim())}”. Try a different number or customer name.`)
+      : emptyState(ICON.doc, `No ${nounPl} yet`,
+          `Nothing found in Firebase. Hit Reload if you expected records here.`);
     return;
   }
   const sel = _selectedKey();
@@ -949,18 +1316,24 @@ function renderList(){
             `<span class="row-editor"><span class="presence-dot"></span><span class="who">${fmt.esc(u)}</span> editing</span>`
           ).join('')}</div>`
       : '';
+    // Row is a real <button> so it is keyboard-reachable and Enter/Space
+    // activate it. The Open/Edit label is a plain <span> (not a nested
+    // button, which is invalid HTML inside a button) — the whole row is
+    // the single click target.
     return `
-      <div class="picker-row${active}" onclick="selectRecord('${fmt.esc(r.key)}')">
-        <div class="row-main">
-          <div class="row-top">
+      <button type="button" class="picker-row${active}"
+              aria-current="${r.key === sel ? 'true' : 'false'}"
+              onclick="selectRecord('${fmt.esc(r.key)}')">
+        <span class="row-main">
+          <span class="row-top">
             <span class="qno">${fmt.esc(r.num)}</span>${revBadge}
-          </div>
-          <div class="cust">${cust}</div>
-          ${metaHtml ? `<div class="meta">${metaHtml}</div>` : ''}
+          </span>
+          <span class="cust">${cust}</span>
+          ${metaHtml ? `<span class="meta">${metaHtml}</span>` : ''}
           ${editorsHtml}
-        </div>
-        <button class="${btnClass}" onclick="event.stopPropagation();selectRecord('${fmt.esc(r.key)}')">${btnLabel}</button>
-      </div>`;
+        </span>
+        <span class="${btnClass}" aria-hidden="true">${btnLabel}</span>
+      </button>`;
   }).join('');
 }
 
@@ -968,7 +1341,7 @@ function selectRecord(key){
   _selected[_mode] = key;
   const raw = _cache()[key];
   if (!raw){
-    alert('Record not found in cache. Try Reload.');
+    toast('Record not found in cache — hit Reload.', 'err');
     return;
   }
   renderList();
@@ -1465,16 +1838,16 @@ function _crDocId(mode, sourceKey){
 
 async function saveCR(){
   if (_mode !== 'qcr' && _mode !== 'socr'){
-    alert('Open a Quotation or SO CR before saving.');
+    toast('Open a Quotation or SO CR before saving.', 'err');
     return;
   }
   const sourceKey = _selectedKey();
   if (!sourceKey){
-    alert('Select a record first.');
+    toast('Select a record first.', 'err');
     return;
   }
   const raw = _cache()[sourceKey];
-  if (!raw){ alert('Source record not found.'); return; }
+  if (!raw){ toast('Source record not found.', 'err'); return; }
 
   const adapted = adaptDoc(raw);
   const cr = mapToCR(raw); // for label only
@@ -1505,18 +1878,18 @@ async function saveCR(){
     // tell the embedding SALES SYSTEM modal to refresh its CR cache / row chips
     try { if (window.parent !== window) window.parent.postMessage({ type:'cr-saved', docId }, '*'); } catch(e){}
     if (btn){ btn.querySelector('span:last-child').textContent = 'Saved ✓'; }
+    toast('Contract Review saved.', 'ok');
     setTimeout(() => {
       if (btn){ btn.disabled = false; btn.querySelector('span:last-child').textContent = 'Save CR'; }
     }, 1200);
   } catch(e){
-    alert('Save failed: ' + (e.message || e));
+    toast('Save failed: ' + (e.message || e), 'err');
     if (btn){ btn.disabled = false; btn.querySelector('span:last-child').textContent = 'Save CR'; }
   }
 }
 
 async function loadSavedRecords(){
-  document.getElementById('savedList').innerHTML =
-    '<div class="loading">Loading saved records…</div>';
+  document.getElementById('savedList').innerHTML = skSavedRows(6);
   try {
     const snap = await db.collection('cr_saved').get();
     _savedCache = {};
@@ -1524,8 +1897,11 @@ async function loadSavedRecords(){
     populateRepFilter();
     renderSaved();
   } catch(e){
-    document.getElementById('savedList').innerHTML =
-      `<div class="picker-empty">Failed to load: ${fmt.esc(e.message || e)}</div>`;
+    document.getElementById('savedList').innerHTML = emptyState(
+      ICON.alert,
+      'Could not load saved records',
+      fmt.esc(e.message || e)
+    );
     console.error(e);
   }
 }
@@ -1567,7 +1943,12 @@ function renderSaved(){
 
   const list = document.getElementById('savedList');
   if (!rows.length){
-    list.innerHTML = '<div class="picker-empty">No saved records match your filters.</div>';
+    const anyFilter = !!(q || mode || rep || dFrom || dTo);
+    list.innerHTML = anyFilter
+      ? emptyState(ICON.search, 'No matches',
+          'No saved records match the current filters. Clear a filter to widen the search.')
+      : emptyState(ICON.folder, 'No saved records yet',
+          'Contract Reviews you save will be listed here.');
     return;
   }
   list.innerHTML = rows.map(r => {
@@ -1577,8 +1958,14 @@ function renderSaved(){
     const savedAt = r.savedAt
       ? new Date(r.savedAt).toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' })
       : '';
+    // Row keeps two distinct actions (Open / Delete), so it stays a div
+    // with role=row + keyboard activation rather than becoming a button
+    // (a button cannot legally contain the action buttons).
     return `
-      <div class="saved-row" onclick="loadFromSaved('${fmt.esc(r.id)}')">
+      <div class="saved-row" tabindex="0" role="button"
+           aria-label="Open saved CR ${fmt.esc(r.sourceNo || '')}"
+           onclick="loadFromSaved('${fmt.esc(r.id)}')"
+           onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();loadFromSaved('${fmt.esc(r.id)}');}">
         <div>${badge}</div>
         <div><span class="qno">${fmt.esc(r.sourceNo || '')}</span></div>
         <div class="cust">${fmt.esc(r.custName || '—')}</div>
@@ -1586,7 +1973,8 @@ function renderSaved(){
         <div class="meta">${fmt.esc(savedAt)}</div>
         <div class="actions">
           <button class="open" onclick="event.stopPropagation();loadFromSaved('${fmt.esc(r.id)}')">Open</button>
-          <button class="del"  onclick="event.stopPropagation();deleteSaved('${fmt.esc(r.id)}')">Delete</button>
+          <button class="del"  onclick="event.stopPropagation();deleteSaved('${fmt.esc(r.id)}')"
+                  aria-label="Delete saved CR ${fmt.esc(r.sourceNo || '')}">Delete</button>
         </div>
       </div>`;
   }).join('');
@@ -1594,7 +1982,7 @@ function renderSaved(){
 
 async function loadFromSaved(id){
   const rec = _savedCache[id];
-  if (!rec){ alert('Record not found.'); return; }
+  if (!rec){ toast('Record not found.', 'err'); return; }
   // Ensure source collection is loaded
   const targetMode = rec.mode;
   if (!Object.keys(_caches[targetMode]).length){
@@ -1602,7 +1990,7 @@ async function loadFromSaved(id){
       const snap = await db.collection(MODE_CFG[targetMode].coll).get();
       _caches[targetMode] = {};
       snap.forEach(d => { _caches[targetMode][d.id] = d.data(); });
-    } catch(e){ alert('Failed to load source collection: ' + e.message); return; }
+    } catch(e){ toast('Failed to load source collection: ' + e.message, 'err'); return; }
   }
   let raw = _caches[targetMode][rec.sourceKey];
   let effectiveKey = rec.sourceKey;
@@ -1627,7 +2015,7 @@ async function loadFromSaved(id){
       if (_caches[targetMode][draftKey]) pick = { k: draftKey, rev: -1 };
     }
     if (!pick){
-      alert('Source record (' + rec.sourceKey + ') no longer exists in ' + MODE_CFG[targetMode].coll + '.\nNo other revisions of "' + baseNo + '" found.');
+      toast('Source record (' + rec.sourceKey + ') no longer exists in ' + MODE_CFG[targetMode].coll + '. No other revisions of "' + baseNo + '" found.', 'err', 8000);
       return;
     }
     effectiveKey = pick.k;
@@ -1648,8 +2036,9 @@ async function deleteSaved(id){
     await db.collection('cr_saved').doc(id).delete();
     delete _savedCache[id];
     renderSaved();
+    toast('Saved CR record deleted.', 'ok');
   } catch(e){
-    alert('Delete failed: ' + (e.message || e));
+    toast('Delete failed: ' + (e.message || e), 'err');
   }
 }
 
